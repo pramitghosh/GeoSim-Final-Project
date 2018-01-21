@@ -9,6 +9,9 @@ class Fire(DynamicModel):
   def initial(self):
     self.fire = self.readmap("start")
 ##    aguila(self.fire)
+    self.dem = self.readmap("dem")
+    self.dem_ldd = ldd(self.dem)
+    self.report(self.dem_ldd, 'ldd')
 
   def dynamic(self):
     win_sum = window4total(scalar(self.fire))
@@ -20,7 +23,11 @@ class Fire(DynamicModel):
     potentialNewFire = pcrand(prev_burn, neighbourBurns)
     self.report(potentialNewFire, 'pnewfire')
 
-    realization = uniform(1) < 0.1
+    downhillBurning = downstream(self.dem_ldd, self.fire)
+    self.report(downhillBurning, 'downhill')
+    p = ifthenelse(downhillBurning == True, scalar(0.8), scalar(0.1))
+    self.report(p, 'prob')
+    realization = uniform(1) < p
     newFire = pcrand(realization, potentialNewFire)
     self.report(newFire, 'newFire')
 
